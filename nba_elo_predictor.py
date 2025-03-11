@@ -110,6 +110,27 @@ def initialize_elo_ratings():
         
         print(f"Updated Elo for game {game_id}: {home_team} ({elo_ratings[home_team]}) vs {away_team} ({elo_ratings[away_team]})")
     
+    # Fix teams that still have the default rating
+    # Find teams with unchanged Elo (still at 1500)
+    unchanged_teams = [team for team, rating in elo_ratings.items() if rating == 1500 and is_nba_team(team)]
+    if unchanged_teams:
+        print("\nFound teams with unchanged Elo ratings (still at 1500):")
+        for team in unchanged_teams:
+            print(f"- {team}")
+        
+        # If a team has a default Elo, calculate a reasonable value based on league average
+        changed_ratings = [rating for team, rating in elo_ratings.items() if rating != 1500 and is_nba_team(team)]
+        if changed_ratings:
+            avg_rating = sum(changed_ratings) / len(changed_ratings)
+            print(f"League average Elo (excluding default values): {avg_rating:.2f}")
+            
+            # Update teams with default ratings to be slightly below league average
+            for team in unchanged_teams:
+                # Set to 98% of league average as a reasonable starting point
+                # This approximates what their rating would likely be based on league trends
+                elo_ratings[team] = round(avg_rating * 0.98, 2)
+                print(f"Updated {team} from default 1500 to {elo_ratings[team]}")
+    
     save_elo_ratings(elo_ratings)
     return elo_ratings
 
@@ -304,8 +325,8 @@ def save_to_excel(elo_ratings, predictions_by_day):
             sheet.cell(row=row, column=5, value=winner)
             sheet.cell(row=row, column=6, value=probability)
             
-            # Format the probability as percentage with 3 decimal places
-            sheet.cell(row=row, column=6).number_format = '0.000'
+            # Format the probability to show full precision (all decimal places)
+            sheet.cell(row=row, column=6).number_format = '0.############'
         
         # Style the predictions table
         apply_table_styles(
