@@ -279,7 +279,8 @@ def save_to_excel(elo_ratings, predictions_by_day):
             row = ratings_header_row + 2 + i
             sheet.cell(row=row, column=1, value=i+1)  # Rank
             sheet.cell(row=row, column=2, value=team)
-            sheet.cell(row=row, column=3, value=rating)
+            sheet.cell(row=row, column=3, value=str(float(rating)))  # Convert to string to preserve decimal precision
+            sheet.cell(row=row, column=3).number_format = '0.##'  # Format to show up to 2 decimal places
         
         # Style the ratings table
         apply_table_styles(
@@ -320,11 +321,17 @@ def save_to_excel(elo_ratings, predictions_by_day):
             
             sheet.cell(row=row, column=1, value=home_team)
             sheet.cell(row=row, column=2, value=away_team)
-            sheet.cell(row=row, column=3, value=home_elo)
-            sheet.cell(row=row, column=4, value=away_elo)
+            sheet.cell(row=row, column=3, value=str(float(home_elo)))
+            sheet.cell(row=row, column=4, value=str(float(away_elo)))
             sheet.cell(row=row, column=5, value=winner)
-            sheet.cell(row=row, column=6, value=probability)
             
+            # Explicitly convert probability to float string to prevent Excel from interpreting it as Boolean
+            probability_str = str(float(probability))
+            sheet.cell(row=row, column=6, value=probability_str)
+            
+            # Format the Elo ratings to show decimal places
+            sheet.cell(row=row, column=3).number_format = '0.##'
+            sheet.cell(row=row, column=4).number_format = '0.##'
             # Format the probability to show full precision (all decimal places)
             sheet.cell(row=row, column=6).number_format = '0.############'
         
