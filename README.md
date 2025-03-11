@@ -21,6 +21,9 @@ This project implements the Elo rating system, originally developed for chess, t
 - **Game Predictions**: Forecasts winners and win probabilities for upcoming games
 - **Historical Analysis**: Uses previous season data to establish baseline ratings
 - **Persistent Storage**: Saves updated Elo ratings for future predictions
+- **Enhanced Excel Sheets**: Stores team Elo ratings and game predictions in beautifully formatted Excel sheets organized by date
+- **NBA Team Filtering**: Ensures only official NBA teams (no G League or other teams) are tracked
+- **Visual Indicators**: Color-coded probability values to easily identify favored teams
 
 ## Requirements
 
@@ -29,6 +32,7 @@ This project implements the Elo rating system, originally developed for chess, t
   - pandas
   - numpy
   - nba_api
+  - openpyxl
 
 ## Installation
 
@@ -40,35 +44,58 @@ This project implements the Elo rating system, originally developed for chess, t
 
 2. Install dependencies:
    ```
-   pip install pandas numpy nba_api
+   pip install pandas numpy nba_api openpyxl
    ```
 
 ## Usage
 
-To predict NBA games for a specific date range:
+To predict NBA games for today:
 
 ```python
 python nba_elo_predictor.py
 ```
 
-By default, the script predicts games from March 11 to March 16, 2025. To change the date range, modify the following line in `nba_elo_predictor.py`:
+To predict games for a custom date range, modify the function call at the bottom of the script:
 
 ```python
 predict_games_for_range("YYYY-MM-DD", "YYYY-MM-DD")
 ```
 
+## Data Storage
+
+EloHoops stores data in two primary ways:
+
+1. **JSON File (elo_ratings.json)**: Contains the latest Elo ratings for all NBA teams in a simple key-value format.
+
+2. **Excel Workbook (nba_elo_tracker.xlsx)**: Contains detailed daily records organized by date in separate sheets, with each sheet including:
+   - A table of all NBA team Elo ratings for that day, ranked by rating
+   - A table of game predictions including home/away teams, their Elo ratings, predicted winner, and home team win probability
+   - Professionally formatted tables with headers, borders, and alternating row colors
+   - Color-coded win probabilities (green for home team favored, pink for away team favored)
+
+Each date's data is stored in its own sheet, and the system will not overwrite existing sheets, preserving historical data.
+
+## Understanding Win Probability
+
+The "Home Team Win Probability" column in the predictions table shows the probability (from 0 to 1) that the home team will win:
+- Values above 0.5 indicate the home team is favored (highlighted in green)
+- Values below 0.5 indicate the away team is favored (highlighted in pink)
+- The "Predicted Winner" column shows the team with the higher win probability
+
 ## How It Works
 
 1. **Initialization**: The system initializes each team with a baseline Elo rating of 1500 if there's no existing rating
-2. **Historical Calibration**: Previous season data is used to refine the ratings
-3. **Game Prediction**: For upcoming games, the system:
+2. **Team Filtering**: Only official NBA teams are tracked and included in predictions
+3. **Historical Calibration**: Previous season data is used to refine the ratings
+4. **Game Prediction**: For upcoming games, the system:
    - Adds a home court advantage of 100 Elo points to the home team
    - Calculates the win probability using the Elo formula
    - Predicts the team with >50% win probability as the winner
-4. **Rating Updates**: After games, ratings are updated based on:
+5. **Rating Updates**: After games, ratings are updated based on:
    - Actual outcome
    - Expected outcome (based on pre-game ratings)
    - K-factor (set to 20) which controls how quickly ratings change
+6. **Data Recording**: All data is saved to both the JSON file and the formatted Excel workbook with date-specific sheets
 
 ## Elo Formula
 
